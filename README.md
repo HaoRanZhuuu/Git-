@@ -88,7 +88,7 @@ Changes not staged for commit:
 
   ​		运行命令后，显示了当前仓库文件的状态，状态显示`readme.txt`文件修改没有被提交。可以使用`git diff`命令查看文件修改的内容。
 
-  ```java
+```java
 $ git diff readme.txt
 diff --git a/readme.txt b/readme.txt
 index 4c7a7dd..2f8c943 100644
@@ -100,20 +100,20 @@ index 4c7a7dd..2f8c943 100644
 +1231231231231313
 +123123
 \ No newline at end of file
-  ```
+```
 
   ​		输出结果显示文件增加了一行内容，之后可以通过使用`add`命令将文件加入缓存区，通过`commit`命令将文件修改提交到版本仓库。提交成功后，使用`git status`命令查看当前状态，显示没有文件需要提交。
 
-  ```java
+```java
 $ git status
 On branch master
 nothing to commit, working tree clean
-  ```
+```
 
 - 版本回退
 
   ​	首先修改`readme.txt`文件，增加一行内容，并进行提交。
-  
+
   ​	使用`git log`命令查看提交过的历史版本日志
 
 ```
@@ -272,4 +272,173 @@ $ git checkout -- test.txt
 
 #### 使用SSH方式远程连接GitHub
 
-​		首先查看是否拥有
+​		首先查看是否拥有SSH的公钥与私钥，即`id_rsa`和`id_rsa.pub`这两个文件。Linux在用户主目录下查找，Windows用户在C盘User目录下查看，是否存在`.ssh`目录，其中存在着这两个文件。
+
+​		如果没有发现，请打开Shell(Windows打开Git Bash命令行工具)创建SSH Key。
+
+```
+$ ssh-keygen -t rsa -C "<emailAddress>"
+```
+
+​		需要填入初始化Git时设置的邮箱地址，之后一路回车，直到创建Key成功。
+
+```
+$ ssh-keygen -t rsa -C "xxx@xxx.com"
+Generating public/private rsa key pair.
+Enter file in which to save the key (/c/Users/xxx/.ssh/id_rsa):
+Created directory '/c/Users/xxx/.ssh'.
+Enter passphrase (empty for no passphrase):
+Enter same passphrase again:
+Your identification has been saved in /c/Users/xxx/.ssh/id_rsa.
+Your public key has been saved in /c/Users/xxx/.ssh/id_rsa.pub.
+The key fingerprint is:
+SHA256:ejtj2Fh2Bbh7SVMBtG8RUVDXLpA8/1nOiO1F2ZgXFJQ xxx@xxx.com
+The key's randomart image is:
++---[RSA 2048]----+
+|         ooo=B=+=|
+|        . ..*. E.|
+|         ..o.+ ++|
+|        . o...=.*|
+|        So +oo Oo|
+|       .+ +.. o.=|
+|      .*.o   . . |
+|      o.=.    .  |
+|       ..o       |
++----[SHA256]-----+
+```
+
+​		之后就可以在`.ssh`目录中看到那两个文件了，其中`id_rsa`为私钥，需要自己保存不能泄露，`id_rsa.pub`为公钥，可以提交给GitHub作为校验，公钥私钥需要配对进行认证，请保管好自己的私钥。
+
+​		创建成功密钥后，打开自己的GitHub，点击头像旁的箭头，选择`Settings`，之后点击         `SSH and GPG keys` 点击`New SSH Key`按钮，在进入的页面中随意输入`Title`，之后打开`id_rsa.pub`文件，将其中的内容复制到下面的Key输入框中，点击确认，即创建了一个SSH Key。
+
+#### 将本地仓库提交至GitHub
+
+​		为了将我们本地的仓库提交到GitHub，需要在GitHub上创建一个同名的仓库。首先进入自己的GitHub主页，点击旁边`repository`的`new`按钮，在`Repository name`中填入之前本地创建库的名称，点击`Create repository`创建仓库。此时，由于创建的GitHub仓库和本地仓库有同名内容，GitHub给了我们一系列的提示，教我们如何将本地内容同步到GitHub上。
+
+​		现在我们根据提示，在本地运行以下命令。
+
+```
+$ git remote add origin git@github.com:<yourGitHubUserName>/<Repository>.git
+```
+
+​		其中`git@github.com:`后面跟上自己GitHub的用户名(注意，不是邮箱，而是在自己GitHub主页上显示的用户名)后面跟上`/`后面跟项目名字.git。即`xxx.git`文件。
+
+​		添加成功后，可以把本地内容推送到远程库中。
+
+```
+$ git push -u origin master
+Logon failed, use ctrl+c to cancel basic credential prompt.
+Username for 'https://github.com': XXXX
+Enumerating objects: 17, done.
+Counting objects: 100% (17/17), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (8/8), done.
+Writing objects: 100% (17/17), 1.30 KiB | 63.00 KiB/s, done.
+Total 17 (delta 0), reused 0 (delta 0)
+To https://github.com/XXXXXX/learn-git.git
+ * [new branch]      master -> master
+Branch 'master' set up to track remote branch 'master' from 'origin'.
+```
+
+​		在第一此Push时可能会被要求输入用户名和密码，可能时SSH密钥没有生效？需要继续研究。
+
+​		之后，项目就会被推到GitHub上，可以在GitHub上看到本地仓库的文件。在此后的Push中，就不需要使用`-u`这个参数了。即`git push origin master`就可以进行推送.
+
+
+
+#### 从GitHub克隆库
+
+​		首先在GitHub上建立一个新库，并选择建立`README.md`文件。仓库创建完会自动生成一个文件，下面使用`git clone`命令对库进行克隆。
+
+```
+$ git clone git@github.com:XXX/Git-Learn.git
+Cloning into 'Git-Learn'...
+The authenticity of host 'github.com (XX.XX.XX.XX)' can't be established.
+RSA key fingerprint is SHA256:XXXXXXkXUpJWGl7E1IGOCspRomTxdCARLviKw6E5SY8.
+Are you sure you want to continue connecting (yes/no)? yes
+Warning: Permanently added 'github.com,XX.XX.XX.XX' (RSA) to the list of know hosts.
+remote: Enumerating objects: 6, done.
+remote: Counting objects: 100% (6/6), done.
+remote: Compressing objects: 100% (3/3), done.
+remote: Total 6 (delta 0), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (6/6), 5.25 KiB | 1.31 MiB/s, done.
+```
+
+​		此时GitHub上的项目就被克隆到的当前目录下，可以打开文件夹查看其中的文件。
+
+​		此时发现了上一步需要输入密码的原因，GitHub克隆或者Push等操作有两种不同的方式，一种是SSH方式，将公钥上传后，仅第一次要在显示的提示处输入yes回车即可，之后都无需进行验证。
+
+​		第二种方式是HTTP方式，用户在输入完命令后会弹出GitHub登录界面进行登录，登录成功后，会要求在命令行输入GitHub用户名并回车，之后会弹出OpenSSH的界面，在其输入密码点击确定，才可以继续运行。具体两种连接如下。
+
+```
+git@github.com:XXX/Git-Learn.git       //SSH方式
+https://github.com/XXX/Git-Learn.git   //HTTP方式
+```
+
+#### 创建与合并分支
+
+​		创建分支可以方便多用户协同开发时，每个用户的修改都不会影响其他人及主分支，每个人都在自己的分支上进行开发，最终合并成一个分支。
+
+​		首先使用`checkout`创建新的`dev`分支，分支名可以根据实际项目起名，`dev`只是举个例子。
+
+```
+$ git checkout -b dev
+Switched to a new branch 'dev'
+```
+
+​		其中`-b`参数标识创建并切换，相当与以下命令。
+
+```
+$ git branch dev
+$ git checkout dev
+Switched to branch 'dev'
+```
+
+​		使用`git branch`命令查看当前分支。
+
+```
+$ git branch
+* dev
+  master
+```
+
+​		显示`*`符号的为当前分支，剩余显示的为其他分支。下面修改readme文件，将内容提交到新分支。
+
+```
+$ git add readme.txt
+$ git commit -m "branch test"
+[dev 0a91fe6] branch test
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+```
+
+​		现在切换到`master`分支，查看文件是否发生变化。
+
+```
+$ git checkout master
+Switched to branch 'master'
+```
+
+​		查看发现，之前修改的内容不见了，此时已经切换到了之前分支的内容。下面，把`dev`分支的内容合并到`master`分支上。
+
+```
+$ git merge dev
+Updating 2c53992..0a91fe6
+Fast-forward
+ readme.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+```
+
+​		`git merge`命令用于将指定分支合并到当前分支，查看文件发现内容已经被合并了，之后删除`dev`分支。
+
+```
+$ git branch -d dev
+Deleted branch dev (was 0a91fe6).
+```
+
+删除后，查看`branch`只剩下`master`分支了
+
+```
+$ git branch
+* master
+```
+
